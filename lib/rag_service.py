@@ -137,7 +137,13 @@ def retrieve_context(
     for document in documents: # loop throught every document
       result = score_document(query, document) # calculate document's score
       scored_documents.append(result) # save result
-
+    
+    relevant_documents = []
+    
+    for result in scored_documents:
+      if result["score"] >= minimum_score:
+        relevant_documents.append(result)
+        
 
 def format_context(context_matches: list[dict[str, Any]]) -> str:
     """Format retrieved documents into a context block for the prompt.
