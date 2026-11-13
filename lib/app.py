@@ -45,7 +45,14 @@ def create_app():
       }), 200
     
     prompt = build_prompt(query, context_matches) # build_prompt() takes in two arguements
-    answer = generate_response(prompt) # takes prompt created, sends to Ollama, and returns AI answer
+   
+    try: # takes prompt created, sends to Ollama, and returns AI answer
+      answer = generate_response(prompt)
+    except RuntimeError:
+      return jsonify({
+        "error": "AI service si currently unavailable."
+      }), 503
+      
     sources = []
     
     for match in context_matches: # calls source_metadata() for every retrieved document and adds results to sources list
