@@ -50,18 +50,27 @@ STOPWORDS = {
 
 
 def tokenize(text: str) -> set[str]:
-    """Convert text into a set of searchable lowercase tokens.
+  """Convert text into a set of searchable lowercase tokens.
 
-    TODO:
-    - Lowercase the text.
-    - Extract word-like values.
-    - Remove leading/trailing apostrophes.
-    - Remove tokens with length <= 1.
-    - Remove tokens in STOPWORDS.
-    - Return a set of searchable terms.
-    """
-    # TODO: Replace this placeholder with your implementation.
-    return set()
+  TODO:
+  - Lowercase the text.
+  - Extract word-like values.
+  - Remove leading/trailing apostrophes.
+  - Remove tokens with length <= 1.
+  - Remove tokens in STOPWORDS.
+  - Return a set of searchable terms.
+  """
+  text = text.lower() # converts to lowercase
+  words = re.findall(r"[a-z0-9']+", text) # extract words
+  tokens = set() # create empty set
+  
+  for word in words: # clean and filter words
+    word = word.strip("")
+    
+    if len(word) > 1 and word not in STOPWORDS: # checks both conditions before adding to set
+      tokens.add(word)
+
+  return tokens # return set
 
 
 def document_search_text(document: dict[str, Any]) -> str:
