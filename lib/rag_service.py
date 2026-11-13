@@ -143,6 +143,12 @@ def retrieve_context(
     for result in scored_documents:
       if result["score"] >= minimum_score:
         relevant_documents.append(result)
+    
+    relevant_documents.sort(
+      key=lambda result: result["score"],
+      reverse=True
+    )
+    return relevant_documents[:limit]
         
 
 def format_context(context_matches: list[dict[str, Any]]) -> str:
