@@ -159,8 +159,22 @@ def format_context(context_matches: list[dict[str, Any]]) -> str:
     - For each match, include Source ID, Title, Category, and Content.
     - Separate document blocks clearly.
     """
-    # TODO: Replace this placeholder with your implementation.
-    return ""
+    if not context_matches: # no matching documents
+      return "No relevant context found." 
+    
+    context_blocks = [] # empty list to store formatted text
+    
+    for match in context_matches:
+      document = match["document"]
+      block = (
+        f"Source ID: {document['id']}\n"
+        f"Title: {document['title']}\n"
+        f"Category: {document['category']}\n"
+        f"Content: {document['text']}\n"
+      )
+      
+      context_blocks.append(block)
+    return "\n\n".join(context_blocks)
 
 
 def build_prompt(query: str, context_matches: list[dict[str, Any]]) -> str:
