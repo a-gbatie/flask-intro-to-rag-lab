@@ -40,7 +40,7 @@ def create_app():
     if not context_matches:
       return jsonify({
         "query": query,
-        "answer": "I couldn't find relevant information in the company documents.",
+        "answer": "The company documents do not contain enough information to answer this question.",
         "sources": []
       }), 200
     

@@ -1,106 +1,98 @@
-# Lab: Build a Context-Aware RAG Endpoint with Flask
 
-## Overview
+# Retrieval-Augmented Generation (RAG) with Flask
 
-You will complete a simplified Retrieval-Augmented Generation, or RAG, endpoint in a Flask API. The endpoint will accept a user question, retrieve relevant context from approved company documents, build a structured prompt, call a local AI model through a provided client function, and return an answer with source information.
+## Description
 
-You’ll get:
+This project is a Flask API that uses Retrieval-Augmented Generation (RAG) to answer questions based on a collection of company documents.
 
-- Starter Flask application files
-- A provided document dataset
-- TODOs in the files you need to complete
-- A pytest test suite that checks the required behavior
+Instead of relying only on an AI model's general knowledge, the application searches for relevant information in company documents and uses that information to build a structured prompt.
 
-Rules:
+The prompt is then sent to an AI model through Ollama to generate a source-backed answer.
 
-- Complete the lab individually.
-- Use the provided starter files and function names.
-- Do not use embeddings, semantic search, vector databases, LangChain, authentication, databases, or deployment tooling.
-- Your work is graded by the automated tests.
-- The tests should run without requiring Ollama because the model call is mocked in the test suite.
+## Technologies Used
 
-You will be able to:
-
-- Implement simple keyword-based retrieval using RAG concepts.
-- Build structured prompts with instructions, context, a user question, and response requirements.
-- Coordinate retrieval, prompt construction, generation, and source attribution inside a Flask route.
-- Return safe API responses for invalid input, missing context, and model-service errors.
-
-You’ll show it by:
-
-- Completing `rag_service.py` and `app.py` so all tests pass.
-
-How you’ll work:
-
-- Use the Identify → Assemble → Execute → Verify process.
-- Start from the API goal, map each file to its responsibility, implement the TODOs, and verify behavior with pytest.
-
-To meet the standard, your work must:
-
-- Pass the provided pytest suite.
-- Validate incoming JSON requests.
-- Select relevant context based on the user query.
-- Build a structured prompt using only retrieved context.
-- Return a generated answer with source IDs and titles.
-- Return a safe fallback when no relevant context is found.
-- Return a helpful service error if the model client fails.
-
-## Scenario
-
-You are a junior backend developer on an internal platform team. Several departments want a small AI-powered assistant that can answer common employee questions using approved company documentation.
-
-Employees ask questions about travel reimbursement, parental leave, API authentication, security incident reporting, software access, and data retention. A standalone model might answer confidently, but it may not know the company’s approved policies or internal technical procedures.
-
-Your task is to complete a simplified RAG endpoint. The endpoint should:
-
-1. Accept an employee or developer question.
-2. Retrieve relevant company documentation from `COMPANY_DOCUMENTS`.
-3. Build a structured prompt using the selected context.
-4. Send the prompt to the provided AI client function.
-5. Return the generated answer with source information.
-
-This is an introductory RAG workflow. You are not building production search, embeddings, or a vector database. You are practicing the core flow: query → retrieval → context → prompt → model response → source-backed JSON response.
-
-## Tools and Resources
-
-You need:
-
-- Python
-- Pipenv
+- Python 3.11
 - Flask
-- requests
-- pytest
-- Ollama with `llama3.2`
-- curl, Postman, Insomnia, or another API testing tool
+- Ollama
+- Llama 3.2
+- Requests
+- Pytest
+- Pipenv
 
-## Setup
+## Features
 
-Install dependencies:
+- Accepts user questions through a POST request.
+- Validates incoming JSON requests.
+- Tokenizes text and removes common stopwords.
+- Searches company documents for matching keywords.
+- Scores documents based on relevance.
+- Gives additional weight to matching words in document titles.
+- Retrieves the highest-scoring documents.
+- Formats retrieved documents into structured context.
+- Builds prompts that instruct the AI to use only the provided information.
+- Returns AI-generated answers with source information.
+- Provides a safe fallback when no relevant documents are found.
+- Handles AI service errors with an HTTP 503 response.
+
+## Project Structure
+
+```text
+flask-intro-to-rag-lab/
+├── lib/
+│   ├── ai_client.py
+│   ├── app.py
+│   ├── company_documents.py
+│   ├── rag_service.py
+│   └── tests/
+├── Pipfile
+├── Pipfile.lock
+└── README.md
+```
+
+## Installation
+
+### 1. Clone the repository
+
+```bash
+git clone git@github.com:a-gbatie/flask-intro-to-rag-lab.git
+cd flask-intro-to-rag-lab
+```
+
+### 2. Install dependencies
+
+Make sure Python 3.11 and Pipenv are installed.
 
 ```bash
 pipenv install
-pipenv shell
 ```
 
-Run tests:
+### 3. Start Ollama
+
+Make sure Ollama is installed and running, and that the Llama 3.2 model is available.
 
 ```bash
-pytest
+ollama pull llama3.2
 ```
 
-Run the Flask app manually:
+### 4. Start the Flask application
 
 ```bash
-flask --app app run --debug
+pipenv run python -m flask --app lib.app run
 ```
 
-Check the health route:
+The application runs at:
 
-```bash
-curl -i http://127.0.0.1:5000/api/health
+```text
+http://127.0.0.1:5000
 ```
 
-Expected response:
+## API Endpoints
+
+### GET /api/health
+
+Checks whether the Flask application is running.
+
+Example response:
 
 ```json
 {
@@ -108,105 +100,93 @@ Expected response:
 }
 ```
 
-## Your Task
+### POST /api/ask
 
-Complete the TODOs in:
+Accepts a question and returns an AI-generated answer based on relevant company documents.
 
-- `lib/rag_service.py`
-- `lib/app.py`
+Example request:
 
-You should not need to change:
-
-- `lib/company_documents.py`
-- `lib/ai_client.py`
-- the tests
-
-## Required Endpoint
-
-Create a POST endpoint:
-
-```text
-/api/ask
+```bash
+curl -X POST http://127.0.0.1:5000/api/ask \
+  -H "Content-Type: application/json" \
+  -d '{"query": "How do I request software access?"}'
 ```
 
-It should accept JSON like:
-
-```json
-{
-  "query": "How do I request software access?"
-}
-```
-
-For a successful context-backed response, return status code `200` and JSON with this structure:
+Example response structure:
 
 ```json
 {
   "query": "How do I request software access?",
-  "answer": "...generated answer...",
+  "answer": "An answer generated using the retrieved company documents.",
   "sources": [
     {
-      "id": "ops_software_access",
-      "title": "Software Access Request Process"
+      "id": "document_id",
+      "title": "Document Title"
     }
   ]
 }
 ```
 
-For a missing or blank query, return status code `400` and JSON with an `error` message.
+The actual answer and sources depend on the retrieved documents and AI response.
 
-For a query that does not match approved documents, return status code `200` and JSON like:
+## How RAG Works
 
-```json
-{
-  "query": "What is served in the cafeteria today?",
-  "answer": "The approved company documents do not contain enough information to answer that question.",
-  "sources": []
-}
-```
+The application follows these steps:
 
-For a model-service error, return status code `503` and JSON with an `error` message.
+1. **Receive a question:** Flask accepts a JSON request containing the user's query.
+2. **Tokenize the question:** The query is converted into searchable lowercase tokens, excluding stopwords.
+3. **Search documents:** The application compares the query tokens with company document content.
+4. **Score documents:** Matching words contribute to a relevance score, with additional points for title matches.
+5. **Retrieve context:** The highest-scoring documents that meet the minimum relevance threshold are selected.
+6. **Build the prompt:** The selected documents and user's question are combined with instructions for the AI.
+7. **Generate an answer:** Ollama processes the prompt using the Llama 3.2 model.
+8. **Return the response:** Flask returns the question, generated answer, and document sources as JSON.
 
-## Implementation Checklist
+## RAG Service Functions
 
-### Identify
+The `rag_service.py` file contains the following functions:
 
-Understand the goal: the endpoint should not send a question directly to the model before retrieving context.
+- `tokenize()` — Converts text into searchable tokens.
+- `document_search_text()` — Combines searchable document fields.
+- `score_document()` — Calculates a document's relevance to a query.
+- `retrieve_context()` — Filters and ranks relevant documents.
+- `format_context()` — Formats retrieved documents into readable context.
+- `build_prompt()` — Creates the structured prompt for the AI.
+- `source_metadata()` — Returns the ID and title of a source document.
 
-### Assemble
+## Error Handling
 
-Use the project files by responsibility:
+The application handles several scenarios:
 
-| File | Responsibility |
-| --- | --- |
-| `company_documents.py` | Stores approved company documents |
-| `rag_service.py` | Handles tokenizing, retrieval, prompt construction, and source metadata |
-| `ai_client.py` | Sends a prompt to Ollama |
-| `app.py` | Coordinates the Flask route and JSON response |
-| `tests/` | Verifies required behavior |
+**Invalid query — HTTP 400**
 
-### Execute
+If the query is missing, empty, or not a string, the API returns an error.
 
-Complete these functions:
+**No relevant documents — HTTP 200**
 
-- `tokenize()`
-- `document_search_text()`
-- `score_document()`
-- `retrieve_context()`
-- `format_context()`
-- `build_prompt()`
-- `source_metadata()`
-- `/api/ask` route logic in `app.py`
+If no documents meet the relevance threshold, the API returns a safe fallback message with an empty sources list.
 
-### Verify
+**AI service unavailable — HTTP 503**
 
-Run:
+If the AI client raises a `RuntimeError`, the API returns a service-unavailable error.
+
+## Testing
+
+This project uses Pytest to verify the RAG service functions and Flask API behavior.
+
+Run the tests using:
 
 ```bash
-pytest
+pipenv run python -m pytest
 ```
 
-All tests should pass.
+To stop at the first failing test:
 
-## Notes
+```bash
+pipenv run python -m pytest -x
+```
 
-The tests mock the AI model call, so you do not need Ollama for automated grading. Ollama is only needed if you want to manually test the full model call locally.
+All tests were passing upon completion of the lab.
+
+## Screenshot of Completed Tests
+![alt text](image.png)

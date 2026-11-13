@@ -202,7 +202,7 @@ def build_prompt(query: str, context_matches: list[dict[str, Any]]) -> str:
       f"{instructions}\n\n"
       f"Context:\n{context}\n\n"
       f"Question:\n{query}\n\n"
-      "Response Requirements:\n"
+      "Response requirements:\n"
       "Provide a clear and concise answer.\n"
       "Use only information supported by the context.\n"
       "If the context does not contain the answer, say you don't know."
