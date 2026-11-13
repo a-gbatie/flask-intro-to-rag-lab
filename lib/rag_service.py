@@ -88,22 +88,31 @@ def document_search_text(document: dict[str, Any]) -> str:
 
 
 def score_document(query: str, document: dict[str, Any]) -> dict[str, Any]:
-    """Score a document using keyword overlap.
+  """Score a document using keyword overlap.
 
-    TODO:
-    - Tokenize the query.
-    - Tokenize the combined searchable document text.
-    - Tokenize the document title.
-    - Find matched terms between query tokens and document tokens.
-    - Add a small title boost: 0.5 for each query token found in the title.
-    - Return a dictionary with keys: document, score, matched_terms.
-    """
-    # TODO: Replace this placeholder with your implementation.
-    return {
-        "document": document,
-        "score": 0,
-        "matched_terms": [],
-    }
+  TODO:
+  - Tokenize the query.
+  - Tokenize the combined searchable document text.
+  - Tokenize the document title.
+  - Find matched terms between query tokens and document tokens.
+  - Add a small title boost: 0.5 for each query token found in the title.
+  - Return a dictionary with keys: document, score, matched_terms.
+  """
+  query_tokens = tokenize(query)
+  document_tokens = tokenize(document_search_text(document))
+  title_tokens = tokenize(document["title"])
+  
+  matched_terms = query_tokens & document_tokens
+  score = len(matched_terms)
+  
+  title_matches = query_tokens & title_tokens
+  score += 0.5 * len(title_matches)
+  
+  return {
+    "document": document,
+    "score": score,
+    "matched_terms": sorted(matched_terms),
+  }
 
 
 def retrieve_context(
