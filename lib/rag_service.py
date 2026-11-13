@@ -190,8 +190,25 @@ def build_prompt(query: str, context_matches: list[dict[str, Any]]) -> str:
     The prompt should tell the model to use only the provided context and avoid
     inventing unsupported details.
     """
-    # TODO: Replace this placeholder with your implementation.
-    return ""
+    context = format_context(context_matches) # converts documents into readable text
+    instructions = (
+      "Instructions:\n"
+      "You are a helpful company assistant.\n"
+      "Answer the user's question using only the provided context.\n"
+      "Do not invent information that is not supported by the context."
+    )
+    
+    prompt = (
+      f"{instructions}\n\n"
+      f"Context:\n{context}\n\n"
+      f"Question:\n{query}\n\n"
+      "Response Requirements:\n"
+      "Provide a clear and concise answer.\n"
+      "Use only information supported by the context.\n"
+      "If the context does not contain the answer, say you don't know."
+    )
+    
+    return prompt
 
 
 def source_metadata(match: dict[str, Any]) -> dict[str, str]:
