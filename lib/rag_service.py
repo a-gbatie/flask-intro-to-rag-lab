@@ -132,8 +132,11 @@ def retrieve_context(
     The selected context must depend on the user's query. Do not return the same
     hardcoded document for every request.
     """
-    # TODO: Replace this placeholder with your implementation.
-    return []
+    scored_documents = [] # create empty list
+    
+    for document in documents: # loop throught every document
+      result = score_document(query, document) # calculate document's score
+      scored_documents.append(result) # save result
 
 
 def format_context(context_matches: list[dict[str, Any]]) -> str:
