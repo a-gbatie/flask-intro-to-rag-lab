@@ -74,13 +74,17 @@ def tokenize(text: str) -> set[str]:
 
 
 def document_search_text(document: dict[str, Any]) -> str:
-    """Combine searchable document fields into one text value.
+  """Combine searchable document fields into one text value.
 
-    TODO:
-    Include title, category, tags, and text.
-    """
-    # TODO: Replace this placeholder with your implementation.
-    return ""
+  TODO:
+  Include title, category, tags, and text.
+  """
+  title = document["title"]
+  category = document["category"]
+  tags = " ".join(document["tags"])
+  content = document["text"]
+  
+  return f"{title} {category} {tags} {content}"
 
 
 def score_document(query: str, document: dict[str, Any]) -> dict[str, Any]:
