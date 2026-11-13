@@ -217,5 +217,8 @@ def source_metadata(match: dict[str, Any]) -> dict[str, str]:
     TODO:
     Return only the document id and title.
     """
-    # TODO: Replace this placeholder with your implementation.
-    return {}
+    document = match["document"]
+    return {
+      "id": document["id"],
+      "title": document["title"]
+    }
